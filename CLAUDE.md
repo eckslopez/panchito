@@ -1,77 +1,104 @@
-# CLAUDE.md
+# Project Context for AI Assistants
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Purpose
+Flask-based data ingestion and API service for real estate data. Demonstrates production Python patterns: async tasks (Celery), data validation (Pydantic), RESTful API design.
+
+## Current State
+Phase I complete (foundation). Phase II in progress (core data model). Migrating from MariaDB to PostgreSQL for pg-multitenant integration. Issue backlog tracked in GitHub.
+
+## Key Files
+- `README.md` - Architecture and quick start
+- `CLAUDE.md` - Detailed development guide for AI assistants
+- `backend/app/` - Flask application structure
+- `docker-compose.yaml` - Local development environment
+- GitHub Issues - Feature tracking and phase milestones
+
+## Working With This Repo
+
+**Local development:**
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f backend
+
+# Run tests (once Phase II complete)
+docker compose run --rm backend pytest
+
+# Database migrations
+docker compose exec backend flask db upgrade
+```
+
+**Project structure:**
+```
+backend/
+├── app/
+│   ├── __init__.py        # Flask app factory
+│   ├── config.py          # Environment configuration
+│   ├── models/            # SQLAlchemy models
+│   ├── api/v1/            # REST API endpoints
+│   ├── services/          # Business logic
+│   ├── tasks/             # Celery tasks
+│   └── schemas/           # Pydantic validation
+├── tests/                 # Test suite (structure ready)
+├── migrations/            # Alembic migrations
+└── requirements.txt       # Dependencies
+```
 
 ## Architecture
 
-This is a three-tier Dockerized web application using Docker Compose:
+**Technology Stack:**
+- Flask 3.1 with app factory pattern
+- SQLAlchemy 2.0 ORM
+- PostgreSQL database (migrating from MariaDB)
+- Celery + Redis for async tasks
+- Pydantic for data validation
+- Docker Compose for local dev
 
-1. **Proxy (Nginx)**: Front-facing reverse proxy on port 80, forwards requests to backend
-2. **Backend (Flask)**: Python Flask application on port 8000, serves blog posts from database
-3. **Database (MariaDB)**: MariaDB 10 database, stores blog data
-
-Network topology:
-- `frontnet`: Connects proxy ↔ backend
-- `backnet`: Connects backend ↔ database
-- Database is not exposed to the proxy layer (security isolation)
-
-Database credentials are managed via Docker secrets (`db/password.txt`).
-
-## Development Commands
-
-### Start the application
-```bash
-docker compose up -d
+**Service Architecture:**
+```
+Nginx (port 80) → Flask (port 8000)
+                   ↓
+                PostgreSQL
+                   ↓
+                Celery Workers ← Redis
 ```
 
-### Stop the application
-```bash
-docker compose down
-```
+**API Endpoints (Phase II):**
+- `GET /api/v1/health` - Health check
+- `GET /api/v1/health/ready` - Readiness probe
+- `GET /api/v1/listings` - List all listings (paginated)
+- `GET /api/v1/listings/{id}` - Get single listing
+- `POST /api/v1/ingest/trigger` - Trigger ETL job
+- `GET /api/v1/ingest/status/{job_id}` - Job status
 
-### Rebuild containers (after code changes)
-```bash
-docker compose up --build
-```
+## Related Repos
+- **zavestudios** - Parent documentation hub
+- **platform-pipelines** - CI/CD workflows (Python test/lint)
+- **pg-multitenant** - Target database platform
+- **thehouseguy** - Consumer application (Rails app)
 
-### View logs
-```bash
-docker compose logs -f [service_name]  # service_name: backend, db, or proxy
-```
+## CI/CD
+GitHub Actions workflows:
+- `test.yml` - pytest with PostgreSQL service container
+- `security.yml` - gitleaks secret scanning
 
-### Check service status
-```bash
-docker compose ps
-```
+---
 
-### Access the application
-- Frontend: http://localhost:80
-- Backend directly: http://localhost:8000
+## Maintaining This File
 
-## Backend Structure
+**When to update:**
+- Phase milestones reached (update Current State)
+- API endpoints added (update Architecture section)
+- Database migration complete (remove "migrating from MariaDB")
+- New services added to docker-compose
+- Major dependency changes
 
-**Main application**: `backend/hello.py`
-- Flask app with a single route `/` that queries and displays blog posts
-- `DBManager` class handles MySQL connection and queries
-- Database connection uses Docker secrets from `/run/secrets/db-password`
-- Database is auto-populated on first request with sample blog posts
+**What NOT to include:**
+- Detailed API documentation (belongs in README.md)
+- Database schema details (self-documenting in models/)
+- Development workflows (belongs in README.md)
+- Phase implementation details (belongs in GitHub Issues)
 
-**Environment variables** (set in `backend/Dockerfile`):
-- `FLASK_APP=hello.py`
-- `FLASK_ENV=development`
-- `FLASK_RUN_PORT=8000`
-- `FLASK_RUN_HOST=0.0.0.0`
-
-## Database
-
-- MariaDB 10 (compatible with both AMD64 and ARM64)
-- Database name: `example`
-- Health check runs every 3 seconds via `mysqladmin ping`
-- Persistent storage via Docker volume `db-data`
-
-## Important Notes
-
-- The backend depends on the database being healthy before starting
-- The proxy depends on the backend being available
-- Database password is stored in `db/password.txt` and mounted as a Docker secret
-- The backend Dockerfile has a `builder` target (used in compose.yaml) and a `dev-envs` target for development environments
+**Keep it under 100 lines total.**
