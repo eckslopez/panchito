@@ -17,7 +17,7 @@ class Config:
     DB_USER = os.getenv('DB_USER', 'root')
     DB_HOST = os.getenv('DB_HOST', 'db')
     DB_NAME = os.getenv('DB_NAME', 'example')
-    DB_PORT = os.getenv('DB_PORT', '3306')
+    DB_PORT = os.getenv('DB_PORT', '5432')
 
     # Read password from Docker secret or env var
     DB_PASSWORD_FILE = os.getenv('DB_PASSWORD_FILE', '/run/secrets/db-password')
@@ -28,7 +28,7 @@ class Config:
         DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
 
     SQLALCHEMY_DATABASE_URI = (
-        f'mysql+mysqldb://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+        f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     )
 
     # Celery
