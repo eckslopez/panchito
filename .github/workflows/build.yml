@@ -1,0 +1,26 @@
+name: Build and Push Container
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-dispatch:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: zavestudios/platform-pipelines/.github/workflows/container-build-dispatch.yml@main
+    with:
+      image_name: zavestudios/panchito
+      dockerfile: Dockerfile
+      push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      platforms: linux/amd64,linux/arm64
+      dispatch_repository: zavestudios/gitops
+      dispatch_event_type: panchito-image-published
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITOPS_REPO_DISPATCH_TOKEN: ${{ secrets.GITOPS_REPO_DISPATCH_TOKEN }}
