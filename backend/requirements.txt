@@ -35,4 +35,4 @@ structlog==25.1.0
 gunicorn==23.0.0
 
 # OIDC client
-Authlib==1.6.1
+Authlib==1.6.9
