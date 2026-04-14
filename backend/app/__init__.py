@@ -3,6 +3,7 @@ from flask import Flask, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.auth import auth_bp, init_oauth, login_required_path
 from app.config import config_by_name
@@ -23,6 +24,9 @@ def create_app(config_name='development'):
         Configured Flask application instance
     """
     app = Flask(__name__)
+
+    # Trust proxy headers for correct URL scheme behind reverse proxy (Cloudflare/Istio)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Load configuration
     app.config.from_object(config_by_name[config_name])
