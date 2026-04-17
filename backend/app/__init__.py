@@ -47,6 +47,11 @@ def create_app(config_name='development'):
     from app.api.v1 import api_v1_bp
     app.register_blueprint(api_v1_bp, url_prefix='/api/v1')
 
+    @app.route('/')
+    def index():
+        """Root endpoint - redirect to listings."""
+        return redirect(url_for('api_v1.get_listings'))
+
     @app.before_request
     def require_authenticated_session():
         """Protect the app with Keycloak when OIDC is enabled."""
