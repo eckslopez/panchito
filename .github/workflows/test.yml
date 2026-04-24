@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Tests
-    uses: zavestudios/platform-pipelines/.github/workflows/python-test.yml@main
+    uses: zavestudios/platform-pipelines/.github/workflows/python-test.yml@c0aa80bb405fa24ede5ebcf1c40b0be90328386c
     with:
       requirements_file: requirements.txt
       working_directory: backend
@@ -17,7 +17,7 @@ jobs:
 
   lint:
     name: Lint
-    uses: zavestudios/platform-pipelines/.github/workflows/python-lint.yml@main
+    uses: zavestudios/platform-pipelines/.github/workflows/python-lint.yml@c0aa80bb405fa24ede5ebcf1c40b0be90328386c
     with:
       working_directory: backend
       run_black: false
