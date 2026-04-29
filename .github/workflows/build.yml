@@ -13,7 +13,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: zavestudios/platform-pipelines/.github/workflows/container-build-dispatch.yml@main
+    uses: zavestudios/platform-pipelines/.github/workflows/container-build-dispatch.yml@c0aa80bb405fa24ede5ebcf1c40b0be90328386c
     with:
       image_name: zavestudios/panchito
       dockerfile: Dockerfile
